@@ -6,10 +6,9 @@ word_list = {} -- we read the list of words directly here as an array
 word_dictionary = {} -- for quick lookup to see if the word exists
 
 -- we get in a raw word, may not be fully alpha numeric or lowercased
--- normalize the word, see if we can get the punctuation out,
--- and if we match a word then return it, otherwise return gobbledy-gook
--- if we can't make sense of it (numbers or something) then put it in brackets and return it
-function process_word(word)
+-- normalize the word, see if we can get the punctuation out
+-- return the normalized word or nil if it cant be normalized
+function normalize_word(word)
    local prefix = string.lower(word)
 
    -- if its a full number, then just return it
@@ -20,7 +19,7 @@ function process_word(word)
    -- remove prefix and trailing punctuation
    local a,no_punctuation,c =  string.match(prefix, "^([%[%]%(%)\"“”]*)([^%(%)%[%],.!?\"“”:]+)([%(%)%[%],.!?\"“”:]*)$")
    if a ~= "" or c ~= "" then
-     -- print (prefix .. "->" .. no_punctuation)
+     print (prefix .. "->" .. no_punctuation)
    end
    if no_punctuation ~= nil then
       prefix = no_punctuation
@@ -29,16 +28,10 @@ function process_word(word)
    -- if its not alpha then return it in brackets since we cant look it up
    if not string.match(prefix, "^[a-z]+$") then
       -- print ("word is not full alpha: '" .. prefix .. "'")
-      return "[" .. word .. "]"
+      return nil
    end
 
-   -- its fully alpha, see if we have it in our word list
-   if word_dictionary[prefix] then
-      return word
-   else 
-      return "<<" .. word .. ">>"
-   end
-   
+   return prefix
 end
 
 function main_code()
@@ -73,8 +66,23 @@ function main_code()
    for line in io.lines() do
       printline = ""
       for word in string.gmatch(line, "[^%s]+") do
-	 w = process_word(word)
-	 printline = printline .. w .. " "
+	 local normalized_word = normalize_word(word)
+	 
+	 if not normalized_word then
+	    normalized_word = string.lower(word) -- may as well try to look it up
+	    sep = "!!"
+	 else
+	    sep = "??"
+	 end
+
+	 -- look up the word
+	 if word_dictionary[normalized_word] then
+	    -- found word
+	    printline = printline .. word .. " "
+	 else
+	    -- word was not found in dictionary
+	    printline = printline .. sep .. word .. sep .. " "
+	 end
       end
       print(printline)
    end
