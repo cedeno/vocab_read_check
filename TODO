@@ -1,0 +1,4 @@
+For words that don't match, print them out in a csv that can easily be edited.
+Then I edit that csv and run the program again with the new csv added to the beginning of the old one, adjusting the number of words also.
+
+For words that don't match, use lorem ipsum but as all caps to make it obvious.
