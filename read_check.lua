@@ -5,6 +5,7 @@
 require "wordlib"
 
 word_dictionary = {} -- for quick lookup to see if the word exists
+output_missed_flag = false -- this flag indicates whether to output the missed words as a csv
 
 -- read in the csv file for word frequency
 -- first column is the word, the second column is the number of times the word occurred
@@ -37,15 +38,28 @@ function read_word_frequency(filename)
 end
 
 
+function usage_error()
+      print("usage: " .. arg[0] .. " --output_missed=[true|false] <num_words> <words_file.csv> <words_override.csv>")
+      os.exit()
+end
+
 function main_code()
-   local output_missed = arg[1]
+   local output_missed_arg = arg[1]
    local num_words = tonumber(arg[2])
    local word_filename = arg[3]
    local word_override_filename = arg[4]
 
+   if output_missed_arg == nil then
+      usage_error()
+   end
+   if string.match(output_missed_arg, "true$") then
+      output_missed_flag = true
+   else
+      output_missed_flag = false
+   end
+
    if num_words == nil then
-      print("usage: " .. arg[0] .. " --output_missed=[true|false] <num_words> <words_file.csv> <words_override.csv>")
-      os.exit()
+      usage_error()
    end
 
    -- process the word frequency csv file
@@ -92,16 +106,18 @@ function main_code()
 	    sep = "??"
 	 end
 
-   --[[
-	 -- look up the word
-	 if word_dictionary[normalized_word] then
-	    -- found word
-	    printline = printline .. word .. " "
-	 else
-	    -- word was not found in dictionary
-	    printline = printline .. sep .. word .. sep .. " "
-         end
-   --]]
+	 -- if we're not outputing the missing words, then just print out the input story
+	 -- with the missing words replaced
+	 if not output_missed_flag then
+	    -- look up the word
+	    if word_dictionary[normalized_word] then
+	       -- found word
+	       printline = printline .. word .. " "
+	    else
+	       -- word was not found in dictionary
+	       printline = printline .. sep .. word .. sep .. " "
+	    end
+	 end
 
 	 -- look up the word
 	 if not word_dictionary[normalized_word] then
@@ -113,11 +129,14 @@ function main_code()
 	    end
          end
       end -- matches for each word
+      print (printline)
    end -- matches for each line
    
    -- print out all the missed words
-   for miss_word,miss_count in pairs(missed_words) do
-      print (miss_word .. "," .. miss_count)
+   if output_missed_flag then
+      for miss_word,miss_count in pairs(missed_words) do
+	 print (miss_word .. "," .. miss_count)
+      end
    end
 end
 
