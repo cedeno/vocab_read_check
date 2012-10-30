@@ -129,7 +129,10 @@ function main_code()
 	    end
          end
       end -- matches for each word
-      print (printline)
+
+      if not output_missed_flag then
+	 print (printline)
+      end
    end -- matches for each line
    
    -- print out all the missed words
