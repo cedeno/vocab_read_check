@@ -45,3 +45,34 @@ function normalize_word(word)
 
    return prefix
 end
+
+-- returns a randomly generated word
+function create_random_word()
+   local word_len = math.random(7) + 3
+   local word = ""
+   for i=1,word_len do
+      if (i % 2) == 1 then
+	 word = word .. consonant()
+      else
+	 word = word .. vowel()
+      end
+   end
+   return word
+end
+
+consonants = "bcdfghjklmnpqrstvwxyz"
+consonants_len = string.len(consonants)
+vowels = "aeiou"
+vowels_len = string.len(vowels)
+
+function consonant()
+   local random_index = math.random(consonants_len)
+   letter = string.sub(consonants, random_index, random_index)
+   return letter
+end
+
+function vowel()
+   local random_index = math.random(vowels_len)
+   letter = string.sub(vowels, random_index, random_index)
+   return letter
+end
