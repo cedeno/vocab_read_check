@@ -83,51 +83,56 @@ function main_code()
       word_dictionary[word_data.word] = true
    end
 
-
-   -- add all the words in words_file2
-
    -- read the text we are analyzing from 
    local missed_words = {} -- the words that were NOT in our dictionary and their count
+
+   -- mapping of missed words to their fake word equivalent (so we use the same fake word 
+   -- again each time we see a particular missed word
+   local fake_words = {} 
+
    local line
    for line in io.lines() do
       local printline = ""
       for word in string.gmatch(line, "[^%s]+") do
 	 local normalized_word = wordlib.normalize_word(word)
-	 
+	 local sep = "" -- separator for missed word
+
 	 if not normalized_word then
 	    normalized_word = string.lower(word) 
 	    -- may as well try to look it up
 	    -- we set sep to '!!' to basically say that if we didn't find it, it could be because we 
 	    -- couldn't parse the word, rather than it wasn't in our dictionary.  perhaps it wasnt 
 	    -- even a word.
-	    sep = "!!" 
+	    --sep = "!!" 
 	 else
 	    -- if we didn't find the world, its clearly just not in the dictionary since we parsed it ok
-	    sep = "??"
-	 end
-
-	 -- if we're not outputing the missing words, then just print out the input story
-	 -- with the missing words replaced
-	 if not output_missed_flag then
-	    -- look up the word
-	    if word_dictionary[normalized_word] then
-	       -- found word
-	       printline = printline .. word .. " "
-	    else
-	       -- word was not found in dictionary
-	       printline = printline .. sep .. word .. sep .. " "
-	    end
+	    --sep = "??"
 	 end
 
 	 -- look up the word
-	 if not word_dictionary[normalized_word] then
+	 if word_dictionary[normalized_word] then
+	    -- found word
+	    printline = printline .. word .. " "
+	 else
+	    -- word was not found in dictionary
+
 	    -- add to the missed_words dictionary
 	    if missed_words[normalized_word] then
 	       missed_words[normalized_word] = missed_words[normalized_word] + 1
 	    else
 	       missed_words[normalized_word] = 1
 	    end
-         end
+
+	    local fake_word = fake_words[normalized_word]
+	    if not fake_word then
+	       fake_word = wordlib.create_random_word()
+	       fake_word = string.upper(fake_word)
+	       fake_words[normalized_word] = fake_word
+	    end
+
+	    -- construct printline
+	    printline = printline .. sep .. fake_word .. sep .. " "
+	 end
       end -- matches for each word
 
       if not output_missed_flag then
