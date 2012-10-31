@@ -1,0 +1,16 @@
+nafis,8
+kelly,2
+nypd,1
+ahsan,1
+galligan,1
+bangladeshi,2
+osama,1
+nyc,1
+u.s.,2
+...,2
+fbi's,1
+manhattan,1
+rezwanul,1
+raymond,1
+mohammad,1
+liberty,1
