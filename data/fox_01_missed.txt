@@ -1,3 +1,13 @@
+fed,1
+fbi,6
+laden,1
+muslims,1
+obama,1
+america,2
+al,4
+qaeda,4
+york,3
+quazi,1
 nafis,8
 kelly,2
 nypd,1
