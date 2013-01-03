@@ -1,5 +1,35 @@
 module(..., package.seeall);
 
+-- read in the csv file for word frequency
+-- first column is the word, the second column is the number of times the word occurred
+-- the returned table is reverse sorted by frequency, 
+-- the first entry will have the word with the highest frequency
+-- RETURNS the table as an array, each element in array is a table which has a "word" field and a "frequency" field.  
+--   this makes it easy to sort with table.sort()
+function read_word_frequency(filename)
+   local word_data_list = {} -- what we will be returning
+   local old_file = io.input() -- save current file
+   local word_file = assert(io.open(filename, "r"))
+   io.input(word_file)
+   local line
+   for line in io.lines() do
+      -- split up the line with the comma
+      local _word , _freq = string.match(line, "([^,]*),([^,]*)")
+      local word_data = { word=_word, freq=tonumber(_freq) }
+      --print ("word=" .. word_data.word .. ", freq=" .. word_data.freq .. ", type=" .. type(word_data.freq))
+      if word_data ~= nil and word_data.word ~= nil and word_data.freq ~= nil then
+	 table.insert(word_data_list, word_data)
+      end
+   end
+   io.input().close() -- close current file
+   io.input(old_file) -- restore to old file
+
+   -- now we do a reverse sort
+   table.sort(word_data_list, function(a,b) return a.freq > b.freq end)
+
+   return word_data_list
+end
+
 -- we get in a raw word, may not be fully alpha numeric or lowercased
 -- normalize the word, see if we can get the punctuation out
 -- return the normalized word or nil if it cant be normalized

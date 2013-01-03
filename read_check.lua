@@ -7,37 +7,6 @@ require "wordlib"
 word_dictionary = {} -- for quick lookup to see if the word exists
 output_missed_flag = false -- this flag indicates whether to output the missed words as a csv
 
--- read in the csv file for word frequency
--- first column is the word, the second column is the number of times the word occurred
--- the returned table is reverse sorted by frequency, 
--- the first entry will have the word with the highest frequency
--- RETURNS the table as an array, the value is a table which has a "word" field and a "frequency" field
--- this makes it easy to sort
-function read_word_frequency(filename)
-   local word_data_list = {} -- what we will be returning
-   local old_file = io.input() -- save current file
-   local word_file = assert(io.open(filename, "r"))
-   io.input(word_file)
-   local line
-   for line in io.lines() do
-      -- split up the line with the comma
-      local _word , _freq = string.match(line, "([^,]*),([^,]*)")
-      local word_data = { word=_word, freq=tonumber(_freq) }
-      --print ("word=" .. word_data.word .. ", freq=" .. word_data.freq .. ", type=" .. type(word_data.freq))
-      if word_data ~= nil and word_data.word ~= nil and word_data.freq ~= nil then
-	 table.insert(word_data_list, word_data)
-      end
-   end
-   io.input().close() -- close current file
-   io.input(old_file) -- restore to old file
-
-   -- now we do a reverse sort
-   table.sort(word_data_list, function(a,b) return a.freq > b.freq end)
-
-   return word_data_list
-end
-
-
 function usage_error()
       print("usage: " .. arg[0] .. " --output_missed=[true|false] <num_words> <words_file.csv> <words_override.csv>")
       os.exit()
@@ -63,11 +32,11 @@ function main_code()
    end
 
    -- process the word frequency csv file
-   local word_data_list = read_word_frequency(word_filename)
+   local word_data_list = wordlib.read_word_frequency(word_filename)
 
    local word_override_list = nil
    if word_override_filename then
-      word_override_list = read_word_frequency(word_override_filename)
+      word_override_list = wordlib.read_word_frequency(word_override_filename)
    else
       word_override_list = {}
    end
